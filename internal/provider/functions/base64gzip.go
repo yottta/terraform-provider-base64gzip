@@ -13,6 +13,8 @@ var (
 	_ function.Function = &Base64GzipFunction{}
 )
 
+// Base64GzipFunction is a provider function that receives a string and compress it by using gzip and returns the base64 encoding
+// of the compressed bytes.
 type Base64GzipFunction struct {
 }
 
@@ -34,6 +36,8 @@ func (b Base64GzipFunction) Definition(_ context.Context, _ function.DefinitionR
 	}
 }
 
+// Run implements the gzip compression and base64 encoding of the given input.
+// This follows the implementation of the OpenTofu's core function: https://github.com/opentofu/opentofu/blob/8368dc8f09d8b2863b88d6373c1076f548ac638d/internal/lang/funcs/encoding.go#L166-L181
 func (b Base64GzipFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
 	var str string
 
@@ -44,7 +48,6 @@ func (b Base64GzipFunction) Run(ctx context.Context, req function.RunRequest, re
 
 	var buf bytes.Buffer
 	gz := gzip.NewWriter(&buf)
-
 	if _, err := gz.Write([]byte(str)); err != nil {
 		resp.Error = function.ConcatFuncErrors(resp.Error, function.NewArgumentFuncError(0, "failed to write gzip raw data: "+err.Error()))
 		return

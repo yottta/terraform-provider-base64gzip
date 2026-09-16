@@ -7,17 +7,17 @@ This is a small, stateless provider that exposes only 2 functions:
 
 ## Purpose
 
-The goal is to emit *byte-identical* output to OpenTofu's pre-v1.13 built-in `base64gzip`/`base64gunzip`, so that this
-provider can be used as an intermediary step when migrating to OpenTofu v1.13. 
+The goal is to emit *byte-identical* output to OpenTofu's pre-1.13 built-in `base64gzip`/`base64gunzip`, so that this
+provider can be used as an intermediary step when migrating to OpenTofu 1.13. 
 You can move a configuration onto `provider::base64gzip::base64gzip(...)` and later swap it for the built-in `base64gzip(...)`
-when the resources affected by this change when upgrading to OpenTofu v1.13.
+when the resources affected by this change could and will be recreated with OpenTofu 1.13.
 
 That parity depends on the Go toolchain, not just on the algorithm. Go's `compress/flate` changed its
 default-compression-level output between Go 1.26 and Go 1.27: for the same input, a Go 1.27 build emits a
 different — equally valid, identically decompressing — Base64 string than a Go 1.26 build. OpenTofu 1.12.x is
-built with go1.26.z, so **this provider must be built with a go1.26.x toolchain** for the guarantee to hold.
-Built with go1.27, it still round-trips correctly, but it is no longer a drop-in match for the core functions
-and swapping to the built-in would produce a diff.
+built with go1.26.x, which contains the old gzip encoding while OpenTofu 1.13.x onwards is built with go1.27.x which
+changed the gzip encoding which creates the issue where a field like `aws_instance.user_data` will be flagged as updated
+and OpenTofu will plan a replacement of the instance.
 
 ## Provider configuration
 
@@ -81,19 +81,48 @@ Build the provider (note the explicit toolchain — see [Purpose](#purpose)):
 
 ```shell
 VERSION=0.0.1
-OS_ARCH=darwin_arm64
-DIR="$PWD/plugins/registry.opentofu.org/yottta/base64gzip/$VERSION/$OS_ARCH"
+OS_ARCH="$(go env GOOS)_$(go env GOARCH)"
+WORKDIR="$(mktemp -d)"
+DIR="${WORKDIR}/plugins/registry.opentofu.org/yottta/base64gzip/${VERSION}/${OS_ARCH}"
 
-mkdir -p "$DIR"
-GOTOOLCHAIN=go1.26.8 go build -o "$DIR/terraform-provider-base64gzip_v$VERSION" .
+prev_dir="$(pwd)"
+mkdir -p "${DIR}"
+echo "work dir ${WORKDIR}"
+GOTOOLCHAIN=go1.26.8 go build -o "${DIR}/terraform-provider-base64gzip_v${VERSION}" .
 
-cat > mirror.tfrc <<EOF
+cat > "${WORKDIR}/mirror.tfrc" <<EOF
 provider_installation {
-  filesystem_mirror { path = "$PWD/plugins" }
+  filesystem_mirror { path = "${WORKDIR}/plugins" }
+}
+EOF
+cat > "${WORKDIR}/main.tf" <<EOF
+terraform {
+  required_providers {
+    base64gzip = {
+      source = "yottta/base64gzip"
+    }
+  }
+}
+
+locals {
+  raw     = "hello world"
+  encoded = "H4sIAAAAAAAA/8pIzcnJVyjPL8pJAQAAAP//AQAA//+FEUoNCwAAAA=="
+}
+
+output "compressed" {
+  value = "\${local.raw} encodes to \${provider::base64gzip::base64gzip(local.raw)}"
+}
+
+output "decompressed" {
+  value = "\${local.encoded} decodes to \${provider::base64gzip::base64gunzip(local.encoded)}"
 }
 EOF
 
-export TF_CLI_CONFIG_FILE="$PWD/mirror.tfrc"
+
+export TF_CLI_CONFIG_FILE="${WORKDIR}/mirror.tfrc"
+cd "${WORKDIR}"
 tofu init
 tofu apply -auto-approve
+
+cd "${prev_dir}"
 ```
