@@ -27,7 +27,7 @@ func main() {
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		Address: "registry.opentofu.org/yottta/base64gzip",
+		Address: "registry.terraform.io/yottta/base64gzip",
 		Debug:   debug,
 	}
 

@@ -12,12 +12,11 @@ provider can be used as an intermediary step when migrating to OpenTofu 1.13.
 You can move a configuration onto `provider::base64gzip::base64gzip(...)` and later swap it for the built-in `base64gzip(...)`
 when the resources affected by this change could and will be recreated with OpenTofu 1.13.
 
-That parity depends on the Go toolchain, not just on the algorithm. Go's `compress/flate` changed its
-default-compression-level output between Go 1.26 and Go 1.27: for the same input, a Go 1.27 build emits a
+Go's `compress/flate` changed its default-compression-level output between Go 1.26 and Go 1.27: for the same input, a Go 1.27 build emits a
 different — equally valid, identically decompressing — Base64 string than a Go 1.26 build. OpenTofu 1.12.x is
-built with go1.26.x, which contains the old gzip encoding while OpenTofu 1.13.x onwards is built with go1.27.x which
-changed the gzip encoding which creates the issue where a field like `aws_instance.user_data` will be flagged as updated
-and OpenTofu will plan a replacement of the instance.
+built with go1.26.x, which contains the old gzip compression algorithm while OpenTofu 1.13.x onwards is built with go1.27.x which
+changed the gzip algorithm which creates the issue where a field like `aws_instance.user_data` will be flagged as updated
+and OpenTofu might plan a replacement of the instance.
 
 ## Provider configuration
 
