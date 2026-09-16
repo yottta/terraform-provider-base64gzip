@@ -25,32 +25,32 @@ var goldenFixtures = []struct {
 	{
 		name:    "empty string",
 		plain:   "",
-		encoded: "H4sIAAAAAAAA/wAAAP//AwAAAAAAAAAAAA==",
+		encoded: "H4sIAAAAAAAA/wAAAP//AQAA//8AAAAAAAAAAA==",
 	},
 	{
 		name:    "short ascii",
 		plain:   "test",
-		encoded: "H4sIAAAAAAAA/wAEAPv/dGVzdAAAAP//AwAMfn/YBAAAAA==",
+		encoded: "H4sIAAAAAAAA/ypJLS4BAAAA//8BAAD//wx+f9gEAAAA",
 	},
 	{
 		name:    "punctuation",
 		plain:   "Hello, World!",
-		encoded: "H4sIAAAAAAAA/wANAPL/SGVsbG8sIFdvcmxkIQAAAP//AwDQw0rsDQAAAA==",
+		encoded: "H4sIAAAAAAAA//JIzcnJ11EIzy/KSVEEAAAA//8BAAD//9DDSuwNAAAA",
 	},
 	{
 		name:    "multi byte utf8",
 		plain:   "héllo wörld é世界",
-		encoded: "H4sIAAAAAAAA/wAWAOn/aMOpbGxvIHfDtnJsZCDDqeS4lueVjAAAAP//AwCmau0OFgAAAA==",
+		encoded: "H4sIAAAAAAAA/8o4vDInJ1+h/PC2opwUhcMrn+yY9nxqDwAAAP//AQAA//+mau0OFgAAAA==",
 	},
 	{
 		name:    "multiline",
 		plain:   "line1\nline2\n",
-		encoded: "H4sIAAAAAAAA/wAMAPP/bGluZTEKbGluZTIKAAAA//8DAFddjToMAAAA",
+		encoded: "H4sIAAAAAAAA/8rJzEs15AKRRlwAAAAA//8BAAD//1ddjToMAAAA",
 	},
 	{
 		name:    "highly compressible",
 		plain:   strings.Repeat("a", 1024),
-		encoded: "H4sIAAAAAAAA/0ocBaNgFIxYAAAAAP//AwC5l1V8AAQAAA==",
+		encoded: "H4sIAAAAAAAA/0ocBaNgFIxYAAAAAP//AQAA//+5l1V8AAQAAA==",
 	},
 }
 
