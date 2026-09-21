@@ -18,6 +18,9 @@ built with go1.26.x, which contains the old gzip compression algorithm while Ope
 changed the gzip algorithm which creates the issue where a field like `aws_instance.user_data` will be flagged as updated
 and OpenTofu might plan a replacement of the instance.
 
+> [!WARNING]
+> The maintenance of this provider will end together with the support of Go 1.26.
+
 ## Provider configuration
 
 ```hcl
