@@ -1,6 +1,6 @@
 module terraform-provider-base64gzip
 
-go 1.26.8
+go 1.26.9
 
 require github.com/hashicorp/terraform-plugin-framework v1.19.0
 
